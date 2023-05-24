@@ -1,0 +1,40 @@
+using System;
+using Cognex.VisionPro;
+using Cognex.VisionPro.ImageProcessing;
+
+class Program
+{
+    static void Main()
+    {
+        // Inicialização do sistema de visão
+        CogFrameGrabbers frameGrabbers = new CogFrameGrabbers();
+        CogFrameGrabber frameGrabber = frameGrabbers[0]; // Seleciona o primeiro frame grabber disponível
+        frameGrabber.Gain = 10; // Exemplo de ajuste de ganho
+        frameGrabber.Exposure = 500; // Exemplo de ajuste de exposição
+
+        // Inicialização do processamento de imagem
+        CogImage8Grey image = frameGrabber.GrabImage().Get8Grey(); // Captura uma imagem em escala de cinza
+        CogImageFilter filter = new CogImageFilter(); // Cria um filtro de imagem
+        filter.Add(new CogThreshold()); // Adiciona um filtro de limiarização
+        filter.Add(new CogBlob()); // Adiciona um filtro de detecção de blob
+
+        // Processamento da imagem
+        CogImage8Grey processedImage = filter.Run(image) as CogImage8Grey;
+
+        // Análise e inspeção
+        CogBlobResult blobs = filter.GetOutputs("CogBlob1") as CogBlobResult; // Obtém os blobs detectados
+
+        // Tomada de decisão
+        if (blobs.Count > 0)
+        {
+            Console.WriteLine("Frasco presente.");
+            // Realize as ações de controle necessárias, como acionar atuadores para o envasamento de dipirona
+        }
+        else
+        {
+            Console.WriteLine("Frasco ausente.");
+            // Realize as ações de controle necessárias, como interromper o envasamento de dipirona
+        }
+    }
+}
+
